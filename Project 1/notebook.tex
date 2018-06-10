@@ -1,0 +1,741 @@
+
+% Default to the notebook output style
+
+    
+
+
+% Inherit from the specified cell style.
+
+
+
+
+    
+\documentclass[11pt]{article}
+
+    
+    
+    \usepackage[T1]{fontenc}
+    % Nicer default font (+ math font) than Computer Modern for most use cases
+    \usepackage{mathpazo}
+
+    % Basic figure setup, for now with no caption control since it's done
+    % automatically by Pandoc (which extracts ![](path) syntax from Markdown).
+    \usepackage{graphicx}
+    % We will generate all images so they have a width \maxwidth. This means
+    % that they will get their normal width if they fit onto the page, but
+    % are scaled down if they would overflow the margins.
+    \makeatletter
+    \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth
+    \else\Gin@nat@width\fi}
+    \makeatother
+    \let\Oldincludegraphics\includegraphics
+    % Set max figure width to be 80% of text width, for now hardcoded.
+    \renewcommand{\includegraphics}[1]{\Oldincludegraphics[width=.8\maxwidth]{#1}}
+    % Ensure that by default, figures have no caption (until we provide a
+    % proper Figure object with a Caption API and a way to capture that
+    % in the conversion process - todo).
+    \usepackage{caption}
+    \DeclareCaptionLabelFormat{nolabel}{}
+    \captionsetup{labelformat=nolabel}
+
+    \usepackage{adjustbox} % Used to constrain images to a maximum size 
+    \usepackage{xcolor} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{textcomp} % defines textquotesingle
+    % Hack from http://tex.stackexchange.com/a/47451/13684:
+    \AtBeginDocument{%
+        \def\PYZsq{\textquotesingle}% Upright quotes in Pygmentized code
+    }
+    \usepackage{upquote} % Upright quotes for verbatim code
+    \usepackage{eurosym} % defines \euro
+    \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+    \usepackage[utf8x]{inputenc} % Allow utf-8 characters in the tex document
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+    \usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range 
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
+    \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
+                                % normalem makes italics be italics, not underlines
+    
+
+    
+    
+    % Colors for the hyperref package
+    \definecolor{urlcolor}{rgb}{0,.145,.698}
+    \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
+    \definecolor{citecolor}{rgb}{.12,.54,.11}
+
+    % ANSI colors
+    \definecolor{ansi-black}{HTML}{3E424D}
+    \definecolor{ansi-black-intense}{HTML}{282C36}
+    \definecolor{ansi-red}{HTML}{E75C58}
+    \definecolor{ansi-red-intense}{HTML}{B22B31}
+    \definecolor{ansi-green}{HTML}{00A250}
+    \definecolor{ansi-green-intense}{HTML}{007427}
+    \definecolor{ansi-yellow}{HTML}{DDB62B}
+    \definecolor{ansi-yellow-intense}{HTML}{B27D12}
+    \definecolor{ansi-blue}{HTML}{208FFB}
+    \definecolor{ansi-blue-intense}{HTML}{0065CA}
+    \definecolor{ansi-magenta}{HTML}{D160C4}
+    \definecolor{ansi-magenta-intense}{HTML}{A03196}
+    \definecolor{ansi-cyan}{HTML}{60C6C8}
+    \definecolor{ansi-cyan-intense}{HTML}{258F8F}
+    \definecolor{ansi-white}{HTML}{C5C1B4}
+    \definecolor{ansi-white-intense}{HTML}{A1A6B2}
+
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatability definitions
+    \def\gt{>}
+    \def\lt{<}
+    % Document parameters
+    \title{KLukowiakAssignment1}
+    
+    
+    
+
+    % Pygments definitions
+    
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\expandafter\def\csname PY@tok@w\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\expandafter\def\csname PY@tok@c\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\expandafter\def\csname PY@tok@k\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\expandafter\def\csname PY@tok@o\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ow\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@nn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@ne\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\expandafter\def\csname PY@tok@nv\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@no\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ni\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\expandafter\def\csname PY@tok@na\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\expandafter\def\csname PY@tok@nt\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@nd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\expandafter\def\csname PY@tok@s\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sd\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@si\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@se\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sr\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\expandafter\def\csname PY@tok@ss\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sx\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@m\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@gh\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gu\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@gd\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\expandafter\def\csname PY@tok@gr\endcsname{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\expandafter\def\csname PY@tok@ge\endcsname{\let\PY@it=\textit}
+\expandafter\def\csname PY@tok@gs\endcsname{\let\PY@bf=\textbf}
+\expandafter\def\csname PY@tok@gp\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\expandafter\def\csname PY@tok@go\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\expandafter\def\csname PY@tok@gt\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\expandafter\def\csname PY@tok@err\endcsname{\def\PY@bc##1{\setlength{\fboxsep}{0pt}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}
+\expandafter\def\csname PY@tok@kc\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kd\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kn\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@kr\endcsname{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@bp\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\expandafter\def\csname PY@tok@fm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\expandafter\def\csname PY@tok@vc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vg\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@vm\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\expandafter\def\csname PY@tok@sa\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sc\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@dl\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@s2\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@sh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@s1\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\expandafter\def\csname PY@tok@mb\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mf\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mh\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mi\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@il\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@mo\endcsname{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PY@tok@ch\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cm\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cpf\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@c1\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\expandafter\def\csname PY@tok@cs\endcsname{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % Exact colors from NB
+    \definecolor{incolor}{rgb}{0.0, 0.0, 0.5}
+    \definecolor{outcolor}{rgb}{0.545, 0.0, 0.0}
+
+
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=urlcolor,
+      linkcolor=linkcolor,
+      citecolor=citecolor,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+    
+
+    \begin{document}
+    
+    
+    \maketitle
+    
+    
+
+    
+    \hypertarget{recomender-systems}{%
+\section{Recomender Systems}\label{recomender-systems}}
+
+\hypertarget{assignment-1}{%
+\subsection{Assignment 1}\label{assignment-1}}
+
+This assignment is for CUNY's DATA 643 Recomender Systems.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+Briefly describe the recommender system that you're going to build out
+from a business perspective, e.g. ``This system recommends data science
+books to readers.''
+
+This project's goal is to build a joke recomender system to make us
+laugh in these trying times.
+
+If one wants to imporove ones mood, the more high quality jokes and
+fewer low quality jokes encountered for a particular user the better. We
+will use baisic mean imputation as well as joke and user bias, to
+predict joke values on non-rated jokes. This will be validated on a test
+set.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+Find a dataset, or build out your own toy dataset. As a minimum
+requirement for complexity, please include numeric ratings for at least
+five users, across at least five items, with some missing data.
+
+I downloaded the dataset from
+\href{http://eigentaste.berkeley.edu/dataset/}{this} site. The dataset
+is quite wide at 151 rows.
+
+This is known as a user-item matrix because each row is a user and each
+column is an item, in this case a joke.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}1}]:} \PY{k+kn}{import} \PY{n+nn}{pandas} \PY{k}{as} \PY{n+nn}{pd}
+        \PY{k+kn}{import} \PY{n+nn}{numpy} \PY{k}{as} \PY{n+nn}{np}
+        \PY{n}{df} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{read\PYZus{}excel}\PY{p}{(}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{jester\PYZhy{}data\PYZhy{}1.xls}\PY{l+s+s1}{\PYZsq{}}\PY{p}{,} \PY{n}{header}\PY{o}{=}\PY{k+kc}{None}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}2}]:} \PY{n}{df}\PY{o}{.}\PY{n}{iloc}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{:}\PY{l+m+mi}{5}\PY{p}{,} \PY{l+m+mi}{0}\PY{p}{:}\PY{l+m+mi}{10}\PY{p}{]}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}2}]:}      0      1      2      3      4     5     6     7     8      9
+        0   74  -7.82   8.79  -9.66  -8.16 -7.52 -8.50 -9.85  4.17  -8.98
+        1  100   4.08  -0.29   6.36   4.37 -2.38 -9.66 -0.73 -5.34   8.88
+        2   49  99.00  99.00  99.00  99.00  9.03  9.27  9.03  9.27  99.00
+        3   48  99.00   8.35  99.00  99.00  1.80  8.16 -2.82  6.21  99.00
+        4   91   8.50   4.61  -4.17  -5.39  1.36  1.60  7.04  4.61  -0.44
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}3}]:} \PY{n}{df}\PY{o}{.}\PY{n}{shape}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}3}]:} (24983, 101)
+\end{Verbatim}
+            
+    The dataset contains 100 jokes as well the count of the ratings. The
+user ID is given by the pandas index
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}3}]:} \PY{k+kn}{from} \PY{n+nn}{bokeh}\PY{n+nn}{.}\PY{n+nn}{io} \PY{k}{import} \PY{n}{output\PYZus{}notebook}\PY{p}{,} \PY{n}{show}
+        \PY{k+kn}{from} \PY{n+nn}{bokeh}\PY{n+nn}{.}\PY{n+nn}{plotting} \PY{k}{import} \PY{n}{figure}
+        
+        \PY{n}{output\PYZus{}notebook}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    
+    
+    
+    
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}4}]:} \PY{n}{jokes} \PY{o}{=} \PY{n}{df}\PY{o}{.}\PY{n}{iloc}\PY{p}{[}\PY{p}{:}\PY{p}{,} \PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{o}{.}\PY{n}{replace}\PY{p}{(}\PY{l+m+mi}{99}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{NAN}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}5}]:} \PY{k}{def} \PY{n+nf}{remover}\PY{p}{(}\PY{n}{p}\PY{p}{)}\PY{p}{:}
+            \PY{c+c1}{\PYZsh{} Set axis to invisiable}
+            \PY{n}{p}\PY{o}{.}\PY{n}{xaxis}\PY{o}{.}\PY{n}{axis\PYZus{}line\PYZus{}width} \PY{o}{=} \PY{l+m+mf}{0.00001}
+            \PY{n}{p}\PY{o}{.}\PY{n}{yaxis}\PY{o}{.}\PY{n}{axis\PYZus{}line\PYZus{}width} \PY{o}{=} \PY{l+m+mf}{0.00001}
+            \PY{c+c1}{\PYZsh{} Fonts}
+            \PY{n}{p}\PY{o}{.}\PY{n}{title}\PY{o}{.}\PY{n}{text\PYZus{}font} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{times}\PY{l+s+s2}{\PYZdq{}}
+            \PY{n}{p}\PY{o}{.}\PY{n}{title}\PY{o}{.}\PY{n}{text\PYZus{}font\PYZus{}style} \PY{o}{=} \PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{normal}\PY{l+s+s2}{\PYZdq{}}
+            \PY{n}{p}\PY{o}{.}\PY{n}{xaxis}\PY{o}{.}\PY{n}{axis\PYZus{}label\PYZus{}text\PYZus{}font} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{times}\PY{l+s+s1}{\PYZsq{}}
+            \PY{n}{p}\PY{o}{.}\PY{n}{xaxis}\PY{o}{.}\PY{n}{axis\PYZus{}label\PYZus{}text\PYZus{}font\PYZus{}style} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{normal}\PY{l+s+s1}{\PYZsq{}}
+            \PY{n}{p}\PY{o}{.}\PY{n}{yaxis}\PY{o}{.}\PY{n}{axis\PYZus{}label\PYZus{}text\PYZus{}font} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{times}\PY{l+s+s1}{\PYZsq{}}
+            \PY{n}{p}\PY{o}{.}\PY{n}{yaxis}\PY{o}{.}\PY{n}{axis\PYZus{}label\PYZus{}text\PYZus{}font\PYZus{}style} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{normal}\PY{l+s+s1}{\PYZsq{}}
+            \PY{c+c1}{\PYZsh{} This removes the outline of the graph.}
+            \PY{n}{p}\PY{o}{.}\PY{n}{outline\PYZus{}line\PYZus{}color} \PY{o}{=} \PY{k+kc}{None}
+            \PY{n}{p}\PY{o}{.}\PY{n}{toolbar}\PY{o}{.}\PY{n}{logo} \PY{o}{=} \PY{k+kc}{None}
+            \PY{n}{p}\PY{o}{.}\PY{n}{toolbar\PYZus{}location} \PY{o}{=} \PY{k+kc}{None}
+            \PY{n}{p}\PY{o}{.}\PY{n}{xgrid}\PY{o}{.}\PY{n}{grid\PYZus{}line\PYZus{}color} \PY{o}{=} \PY{k+kc}{None}
+            \PY{n}{p}\PY{o}{.}\PY{n}{ygrid}\PY{o}{.}\PY{n}{grid\PYZus{}line\PYZus{}color} \PY{o}{=} \PY{k+kc}{None}
+            \PY{k}{return} \PY{n}{p}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}7}]:} \PY{k+kn}{from} \PY{n+nn}{bokeh}\PY{n+nn}{.}\PY{n+nn}{layouts} \PY{k}{import} \PY{n}{gridplot}
+        \PY{k+kn}{from} \PY{n+nn}{bokeh}\PY{n+nn}{.}\PY{n+nn}{plotting} \PY{k}{import} \PY{n}{figure}\PY{p}{,} \PY{n}{show}\PY{p}{,} \PY{n}{output\PYZus{}file}
+        
+        \PY{n}{p1} \PY{o}{=} \PY{n}{figure}\PY{p}{(}\PY{n}{title}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Frequency of Number of Jokes Rated}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        
+        \PY{n}{hist}\PY{p}{,} \PY{n}{edges} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{histogram}\PY{p}{(}\PY{n}{df}\PY{p}{[}\PY{l+m+mi}{0}\PY{p}{]}\PY{p}{,} \PY{n}{density}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} \PY{n}{bins}\PY{o}{=}\PY{l+m+mi}{30}\PY{p}{)}
+        
+        \PY{c+c1}{\PYZsh{}x = np.linspace(\PYZhy{}2, 2, 1000)}
+        \PY{n}{p1}\PY{o}{.}\PY{n}{quad}\PY{p}{(}\PY{n}{top}\PY{o}{=}\PY{n}{hist}\PY{p}{,} \PY{n}{bottom}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{left}\PY{o}{=}\PY{n}{edges}\PY{p}{[}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{n}{right}\PY{o}{=}\PY{n}{edges}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{,}
+            \PY{n}{fill\PYZus{}color}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{skyblue}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{line\PYZus{}color}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{grey}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{n}{p1}\PY{o}{.}\PY{n}{xaxis}\PY{o}{.}\PY{n}{axis\PYZus{}label} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Total Jokes Rated}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{p1}\PY{o}{.}\PY{n}{yaxis}\PY{o}{.}\PY{n}{axis\PYZus{}label} \PY{o}{=} \PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{Proportion of Responses}\PY{l+s+s1}{\PYZsq{}}
+        \PY{n}{p1} \PY{o}{=} \PY{n}{remover}\PY{p}{(}\PY{n}{p1}\PY{p}{)}
+        \PY{n}{show}\PY{p}{(}\PY{n}{p1}\PY{p}{)}
+\end{Verbatim}
+
+
+    
+    
+    
+    
+    We have some complete cases here, however, even if complete cases were
+not correlated with joke preferences, we still would be thowing out a
+crazy amount of data for training.
+
+Since we must train on data that is not a complete case, we need to
+validate it. Because we must predict NA values for people who have been
+used as training sets, we need a way to validate.
+
+To do this we can select random ratings to be our test set.
+
+    I removed the first column because it was the number of jokes answered.
+
+This is less interesting to us because we don't need to understand how
+many jokes were answered.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}6}]:} \PY{n}{p1} \PY{o}{=} \PY{n}{figure}\PY{p}{(}\PY{n}{title}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{Rating Distrobution}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{n}{allHist} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{melt}\PY{p}{(}\PY{n}{jokes}\PY{p}{)}
+        \PY{n}{hist}\PY{p}{,} \PY{n}{edges} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{histogram}\PY{p}{(}\PY{n}{allHist}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{value}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]}\PY{o}{.}\PY{n}{dropna}\PY{p}{(}\PY{p}{)}\PY{p}{,} \PY{n}{density}\PY{o}{=}\PY{k+kc}{True}\PY{p}{,} \PY{n}{bins}\PY{o}{=}\PY{l+m+mi}{30}\PY{p}{)}
+        \PY{n}{p1}\PY{o}{.}\PY{n}{quad}\PY{p}{(}\PY{n}{top}\PY{o}{=}\PY{n}{hist}\PY{p}{,} \PY{n}{bottom}\PY{o}{=}\PY{l+m+mi}{0}\PY{p}{,} \PY{n}{left}\PY{o}{=}\PY{n}{edges}\PY{p}{[}\PY{p}{:}\PY{o}{\PYZhy{}}\PY{l+m+mi}{1}\PY{p}{]}\PY{p}{,} \PY{n}{right}\PY{o}{=}\PY{n}{edges}\PY{p}{[}\PY{l+m+mi}{1}\PY{p}{:}\PY{p}{]}\PY{p}{,}
+            \PY{n}{fill\PYZus{}color}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{skyblue}\PY{l+s+s2}{\PYZdq{}}\PY{p}{,} \PY{n}{line\PYZus{}color}\PY{o}{=}\PY{l+s+s2}{\PYZdq{}}\PY{l+s+s2}{grey}\PY{l+s+s2}{\PYZdq{}}\PY{p}{)}
+        \PY{n}{p1} \PY{o}{=} \PY{n}{remover}\PY{p}{(}\PY{n}{p1}\PY{p}{)}
+        \PY{n}{show}\PY{p}{(}\PY{n}{p1}\PY{p}{)}
+\end{Verbatim}
+
+
+    
+    
+    
+    
+    The data looks like there is a preference for jokes just above average.
+Also, more people seem to be fine giving the max negative value
+indicating they hated the joke while less give the max positive value.
+Conversly, there are more people giving positive values.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+\hypertarget{simple-predictions}{%
+\subsection{Simple Predictions}\label{simple-predictions}}
+
+We are tasked with predicting joke ratings for jokes that users have not
+yet rated. There is no way to verify what they will rate. Instead we
+will have to validate with a training and test set.
+
+Once we have some strategy, we can apply it to the \texttt{NA} values.
+
+Because the NA values are distributed amoung all but a few responders.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+Break your ratings into separate training and test datasets.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}9}]:} \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{seed}\PY{p}{(}\PY{l+m+mi}{101}\PY{p}{)}
+        \PY{n}{trainTestMask} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{random}\PY{o}{.}\PY{n}{choice}\PY{p}{(}\PY{p}{[}\PY{k+kc}{True}\PY{p}{,} \PY{k+kc}{False}\PY{p}{]}\PY{p}{,} \PY{n}{size}\PY{o}{=}\PY{n}{jokes}\PY{o}{.}\PY{n}{shape}\PY{p}{,} \PY{n}{p}\PY{o}{=}\PY{p}{[}\PY{l+m+mf}{0.7}\PY{p}{,} \PY{l+m+mf}{0.3}\PY{p}{]}\PY{p}{)}
+        \PY{n}{trainTestMask} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{trainTestMask}\PY{p}{)}
+        \PY{n}{trainTestMask}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}9}]:}      0     1     2     3      4      5      6      7      8     9   {\ldots}   \textbackslash{}
+        0  True  True  True  True   True  False   True  False  False  True  {\ldots}    
+        1  True  True  True  True  False   True   True   True  False  True  {\ldots}    
+        2  True  True  True  True  False   True   True   True   True  True  {\ldots}    
+        3  True  True  True  True   True   True  False   True   True  True  {\ldots}    
+        4  True  True  True  True   True   True   True   True   True  True  {\ldots}    
+        
+              90    91     92     93     94     95     96     97     98    99  
+        0   True  True   True   True   True  False   True   True  False  True  
+        1   True  True   True   True   True  False   True  False   True  True  
+        2   True  True  False  False  False   True   True  False   True  True  
+        3   True  True   True   True   True  False  False   True   True  True  
+        4  False  True   True   True  False   True  False   True   True  True  
+        
+        [5 rows x 100 columns]
+\end{Verbatim}
+            
+    This gives us a way to randomly select training and test sets, but we
+still need to test for NA values.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}10}]:} \PY{n}{train} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{trainTestMask}\PY{p}{,} \PY{n}{jokes}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{NAN}\PY{p}{)}\PY{p}{)}
+         \PY{n}{test} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{invert}\PY{p}{(}\PY{n}{trainTestMask}\PY{p}{)}\PY{p}{,} \PY{n}{jokes}\PY{p}{,} \PY{n}{np}\PY{o}{.}\PY{n}{NAN}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+    We have our training and test data. We first need to calculate the mean
+for the total training set and calculate the RMSE on the test set.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}11}]:} \PY{n}{rawMean} \PY{o}{=} \PY{n}{train}\PY{o}{.}\PY{n}{stack}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}
+         \PY{n}{rawMean}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}11}]:} 0.8783613614046262
+\end{Verbatim}
+            
+    The raw mean is close to zero. We will replace all na values with this
+and calculate the RMSE.
+
+Using your training data, calculate the raw average (mean) rating for
+every user-item combination.
+
+\begin{itemize}
+\tightlist
+\item
+  Calculate the RMSE for raw average for both your training data and
+  your test data.
+\end{itemize}
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}12}]:} \PY{n}{testRaw} \PY{o}{=} \PY{n}{train}\PY{o}{.}\PY{n}{fillna}\PY{p}{(}\PY{n}{value}\PY{o}{=}\PY{n}{rawMean}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}13}]:} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{p}{(}\PY{p}{(}\PY{n}{pd}\PY{o}{.}\PY{n}{melt}\PY{p}{(}\PY{n}{test}\PY{p}{)}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{value}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{rawMean}\PY{p}{)}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{)}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}\PY{p}{)} \PY{c+c1}{\PYZsh{}  This ignores NA values that were present before too.}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}13}]:} 5.2324418349094142
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}14}]:} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{p}{(}\PY{p}{(}\PY{n}{pd}\PY{o}{.}\PY{n}{melt}\PY{p}{(}\PY{n}{train}\PY{p}{)}\PY{p}{[}\PY{l+s+s1}{\PYZsq{}}\PY{l+s+s1}{value}\PY{l+s+s1}{\PYZsq{}}\PY{p}{]} \PY{o}{\PYZhy{}} \PY{n}{rawMean}\PY{p}{)}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{)}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}\PY{p}{)} \PY{c+c1}{\PYZsh{}  This ignores NA values that were present before too.}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}14}]:} 5.2373261451264863
+\end{Verbatim}
+            
+    So we have a RMSE of 5.23 for the test set and surprisingly, a higher
+one for the training set. This is a bit weird because we would expect
+some over fitting. However, given that we are just taking the meanit is
+unlikely there is a statistical difference.
+
+    \hypertarget{more-accuracy}{%
+\subsection{More accuracy}\label{more-accuracy}}
+
+To get more accuracy, we will need to add the column means and row means
+to the raw mean.
+
+The formula should look like:
+
+\[
+pred = RawMean+SpecificColumnMean+SpecificRowMean
+\]
+
+Another way to think of it is:
+
+\[
+pred_{i,j} = RawMean + RowMean_j + ColMean_i
+\]
+
+Using your training data, calculate the bias for each user and each
+item.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}15}]:} \PY{n}{colMean} \PY{o}{=} \PY{n}{train}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}
+         \PY{n}{rowMean} \PY{o}{=} \PY{n}{train}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{n}{axis}\PY{o}{=}\PY{l+m+mi}{1}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}16}]:} \PY{n}{preds} \PY{o}{=} \PY{n}{np}\PY{o}{.}\PY{n}{full}\PY{p}{(}\PY{n}{jokes}\PY{o}{.}\PY{n}{shape}\PY{p}{,} \PY{n}{rawMean}\PY{p}{)}
+         \PY{n}{preds} \PY{o}{+}\PY{o}{=} \PY{n}{colMean}
+         \PY{n}{preds} \PY{o}{=}\PY{n}{preds} \PY{o}{+} \PY{n}{rowMean}\PY{p}{[}\PY{p}{:}\PY{p}{,}\PY{n}{np}\PY{o}{.}\PY{n}{newaxis}\PY{p}{]}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}17}]:} \PY{n}{preds} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{preds}\PY{p}{)}
+         \PY{n}{preds}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}17}]:}          0         1         2         3         4         5         6   \textbackslash{}
+         0 -1.885926 -2.646217 -2.469234 -4.251214 -2.334262 -1.162556 -3.202825   
+         1  3.927500  3.167209  3.344193  1.562212  3.479165  4.650870  2.610602   
+         2  8.840250  8.079959  8.256942  6.474962  8.391914  9.563620  7.523351   
+         3  5.250582  4.490291  4.667274  2.885294  4.802246  5.973952  3.933683   
+         4  5.170784  4.410493  4.587476  2.805496  4.722449  5.894154  3.853885   
+         
+                  7         8         9     {\ldots}           90        91         92  \textbackslash{}
+         0 -3.425682 -3.344824 -1.531391    {\ldots}    -0.757232 -1.621067  -0.324863   
+         1  2.387745  2.468603  4.282036    {\ldots}     5.056195  4.192359   5.488563   
+         2  7.300494  7.381352  9.194785    {\ldots}     9.968944  9.105109  10.401313   
+         3  3.710827  3.791684  5.605117    {\ldots}     6.379276  5.515441   6.811645   
+         4  3.631029  3.711887  5.525319    {\ldots}     6.299478  5.435643   6.731847   
+         
+                  93        94        95        96        97        98        99  
+         0 -1.583458 -1.836889 -1.352553 -1.123196 -2.061757 -2.840812 -1.467379  
+         1  4.229969  3.976538  4.460873  4.690230  3.751670  2.972614  4.346047  
+         2  9.142718  8.889287  9.373623  9.602980  8.664419  7.885364  9.258797  
+         3  5.553050  5.299619  5.783955  6.013312  5.074751  4.295696  5.669129  
+         4  5.473252  5.219822  5.704157  5.933514  4.994953  4.215898  5.589331  
+         
+         [5 rows x 100 columns]
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}18}]:} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{p}{(}\PY{p}{(}\PY{n}{preds} \PY{o}{\PYZhy{}} \PY{n}{test}\PY{p}{)}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{)}\PY{o}{.}\PY{n}{stack}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}18}]:} 4.68875588784186
+\end{Verbatim}
+            
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}19}]:} \PY{n}{np}\PY{o}{.}\PY{n}{sqrt}\PY{p}{(}\PY{p}{(}\PY{p}{(}\PY{n}{preds} \PY{o}{\PYZhy{}} \PY{n}{train}\PY{p}{)}\PY{o}{*}\PY{o}{*}\PY{l+m+mi}{2}\PY{p}{)}\PY{o}{.}\PY{n}{stack}\PY{p}{(}\PY{p}{)}\PY{o}{.}\PY{n}{mean}\PY{p}{(}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}19}]:} 4.6173021500924856
+\end{Verbatim}
+            
+    Adding the column and row biases lead to significant imporovement of the
+RMSE. We now see the training data slightly overfitting when compared to
+the test data.
+
+    \hypertarget{predictions}{%
+\subsection{Predictions,}\label{predictions}}
+
+We have already made predictions for the entire data frame, now we just
+need to add them to the main dataset.
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}20}]:} \PY{n}{isNA} \PY{o}{=} \PY{n}{jokes}\PY{o}{.}\PY{n}{isnull}\PY{p}{(}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}21}]:} \PY{n}{fullDF} \PY{o}{=} \PY{n}{pd}\PY{o}{.}\PY{n}{DataFrame}\PY{p}{(}\PY{n}{np}\PY{o}{.}\PY{n}{where}\PY{p}{(}\PY{n}{isNA}\PY{p}{,} \PY{n}{preds}\PY{p}{,} \PY{n}{jokes}\PY{p}{)}\PY{p}{)}
+\end{Verbatim}
+
+
+    \begin{Verbatim}[commandchars=\\\{\}]
+{\color{incolor}In [{\color{incolor}22}]:} \PY{n}{fullDF}\PY{o}{.}\PY{n}{head}\PY{p}{(}\PY{l+m+mi}{20}\PY{p}{)}
+\end{Verbatim}
+
+
+\begin{Verbatim}[commandchars=\\\{\}]
+{\color{outcolor}Out[{\color{outcolor}22}]:}           0         1         2         3     4         5     6     7   \textbackslash{}
+         0  -7.820000  8.790000 -9.660000 -8.160000 -7.52 -8.500000 -9.85  4.17   
+         1   4.080000 -0.290000  6.360000  4.370000 -2.38 -9.660000 -0.73 -5.34   
+         2   8.840250  8.079959  8.256942  6.474962  9.03  9.270000  9.03  9.27   
+         3   5.250582  8.350000  4.667274  2.885294  1.80  8.160000 -2.82  6.21   
+         4   8.500000  4.610000 -4.170000 -5.390000  1.36  1.600000  7.04  4.61   
+         5  -6.170000 -3.540000  0.440000 -8.500000 -7.09 -4.320000 -8.69 -0.87   
+         6   6.109847  5.349555  5.526539  3.744558  8.59 -9.850000  7.72  8.79   
+         7   6.840000  3.160000  9.170000 -6.210000 -8.16 -1.700000  9.27  1.41   
+         8  -3.790000 -3.540000 -9.420000 -6.890000 -8.74 -0.290000 -5.29 -8.93   
+         9   3.010000  5.150000  5.150000  3.010000  6.41  5.150000  8.93  2.52   
+         10 -2.910000  4.080000  4.622986  2.841006 -5.73  5.929664  2.48 -5.29   
+         11  1.310000  1.800000  2.570000 -2.380000  0.73  0.730000 -0.97  5.00   
+         12  7.024204  6.263912  6.440896  4.658916  5.87  7.747574  5.58  0.53   
+         13  9.220000  9.270000  9.220000  8.300000  7.43  0.440000  3.50  8.16   
+         14  8.790000 -5.780000  6.020000  3.690000  7.77 -5.830000  8.69  8.59   
+         15 -3.500000  1.550000  2.330000 -4.130000  4.22 -2.280000 -2.96 -0.49   
+         16  3.702775 -9.270000  3.119467  1.337487 -7.38  4.426145  8.74 -6.31   
+         17  3.160000  7.620000  3.790000  8.250000  4.22  7.620000  2.43  0.97   
+         18  4.220000  3.640000  2.668232  0.886252  2.52  3.974910  4.13 -5.19   
+         19  1.112847  7.620000  0.529539 -1.252442 -8.64  2.430000  8.93 -6.60   
+         
+                   8         9     {\ldots}           90        91         92        93  \textbackslash{}
+         0  -8.980000 -4.760000    {\ldots}     2.820000 -1.621067  -0.324863 -1.583458   
+         1   8.880000  9.220000    {\ldots}     2.820000 -4.950000  -0.290000  7.860000   
+         2   7.381352  9.194785    {\ldots}     9.968944  9.105109  10.401313  9.080000   
+         3   3.791684  1.840000    {\ldots}     6.379276  5.515441   6.811645  0.530000   
+         4  -0.440000  5.730000    {\ldots}     5.190000  5.580000   4.270000  5.190000   
+         5  -6.650000 -1.800000    {\ldots}    -3.540000 -6.890000  -0.680000 -2.960000   
+         6   4.650949  6.464382    {\ldots}     7.238541  6.374705   7.670909  6.412315   
+         7  -5.190000 -4.420000    {\ldots}     7.230000 -1.120000  -0.100000 -5.680000   
+         8  -7.860000 -1.600000    {\ldots}     4.370000 -0.290000   4.170000 -0.290000   
+         9   3.010000  8.160000    {\ldots}     7.604834  4.470000   8.037203  6.778608   
+         10  3.747397  1.460000    {\ldots}     6.334988  6.170000   6.767357  5.508762   
+         11 -7.230000 -1.360000    {\ldots}     1.460000  1.700000   0.290000 -3.300000   
+         12  5.565306  7.140000    {\ldots}     8.152898  7.289062   7.520000  7.326672   
+         13  5.970000  8.980000    {\ldots}     8.110000 -1.020000   5.580000  6.840000   
+         14 -5.920000  7.520000    {\ldots}     2.720000 -5.490000  -8.590000  8.690000   
+         15  2.910000  1.990000    {\ldots}     3.110000  1.700000   0.240000 -5.920000   
+         16  2.243878  2.330000    {\ldots}     4.831470  3.967634   5.263838  4.005243   
+         17  0.530000  0.830000    {\ldots}     0.830000  5.680000   3.690000  0.190000   
+         18  1.792643  7.910000    {\ldots}     4.380235  0.050000   4.812603  3.554008   
+         19 -0.346051 -9.470000    {\ldots}     2.241541  1.377705   2.673909  1.415315   
+         
+                   94        95        96        97        98        99  
+         0  -1.836889 -1.352553 -5.630000 -2.061757 -2.840812 -1.467379  
+         1  -0.190000 -2.140000  3.060000  0.340000 -4.320000  1.070000  
+         2   8.889287  9.373623  9.602980  8.664419  7.885364  9.258797  
+         3   5.299619  5.783955  6.013312  5.074751  4.295696  5.669129  
+         4   5.730000  1.550000  3.110000  6.550000  1.800000  1.600000  
+         5  -2.180000 -3.350000  0.050000 -9.080000 -5.050000 -3.450000  
+         6   6.158884  2.330000  6.872576  5.934016  5.154960  6.528393  
+         7  -3.160000 -3.350000  2.140000 -0.050000  1.310000  0.000000  
+         8  -0.290000 -0.290000 -0.290000 -0.290000 -3.400000 -4.950000  
+         9   6.525177  7.009512  7.238870  6.300309  5.521254  6.894686  
+         10  5.255331  5.739667  5.969024  5.030463  4.251408  5.624841  
+         11  3.450000  5.440000  4.080000  2.480000  4.510000  4.660000  
+         12  7.073241  7.557576  7.786934  6.848373  6.069318  7.442750  
+         13  5.530000 -5.920000  8.200000  8.980000 -8.160000  6.500000  
+         14 -8.740000 -3.010000  8.300000 -4.810000 -2.380000 -5.970000  
+         15  7.280000 -1.360000  3.740000  2.820000 -2.860000  3.450000  
+         16  3.751813  4.236148  4.465505  3.526944  2.747889  4.121322  
+         17  0.290000  3.590000  0.490000  8.060000  0.490000  7.620000  
+         18  3.300578  3.784913  1.650000  3.075709  2.296654  3.670087  
+         19  1.161884  1.646219  1.875576  0.937016  0.157960  1.531393  
+         
+         [20 rows x 100 columns]
+\end{Verbatim}
+            
+    We can see that more bias we can account for, them lower RMSE we have.
+
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+
+
+    % Add a bibliography block to the postdoc
+    
+    
+    
+    \end{document}
