@@ -33,8 +33,7 @@ but require a lot of data to start.
 ## Pandora's Recomender System
 
 Pandora is interesting because they took the CBRS so far. Pandora has something
-they call the [Music Genome Project
-(MGP)](https://www.pandora.com/about/mgp). This is a vector of over 450 features
+they call the [Music Genome Project (MGP)](https://www.pandora.com/about/mgp). This is a vector of over 450 features
 such as genera, tempo etc. This is a highly ambitious project given the cost of
 employing 'musicologists' to classify every song. Rumor has it that each song
 takes 15-30 minutes to classify.
@@ -56,8 +55,8 @@ conjunction with the MGP.
 
 There are many bad actors who might want to influence ratings. This can range
 from competitors trashing a different store online, to inflated reviews of
-products by the producer. In the [example article](https://www.washingtonpost.com/news/morning-mix/wp/2017/04/19/wisdom-of-the-crowd-imdb-users-gang-up-on-the-promise-before-it-even-opens/?utm_term=.329a75ece088)
-the attack was actually done in an attempt to deny the Armenian genocide.
+products by the producer. In the [example article](https://www.washingtonpost.com/news/morning-mix/wp/2017/04/19/wisdom-of-the-crowd-imdb-users-gang-up-on-the-promise-before-it-even-opens/?utm_term=.329a75ece088) the attack was actually done in
+an attempt to deny the Armenian genocide.
 
 
 It can be really hard to find these for multiple reasons. First, what even
