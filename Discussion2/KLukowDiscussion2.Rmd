@@ -1,0 +1,76 @@
+---
+title: "ALS in R"
+author: "Kai Lukowiak"
+date: '2018-06-21'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Alternating Least Squares (ALS)
+
+After watching the [spark conference video](https://www.youtube.com/watch?v=FgGjc5oabrA) on how spotify is using spark I became interested in how ALS can be used to make predictions for users. 
+
+From the video, prior experience and new research I found several advantages to ALS :
+
+1. It makes predictions for all entries,
+1. It will find a global minima,
+1. It is easily parallelizable,
+1. Surprisingly least squares can fit non-linear data. 
+    - This is only really surprising because I spent so much time doing OLS which is linear and I always associate any least squares with this.
+
+## How it works
+
+ALS works by using matrix factorization. Matrix factorization works by taking a matrix $A_{m \times n}$ and finding two other matricies $U_{m\times k} and $P_{k\times n} that approximately equal $A$.
+
+This is done by first initializing $P \& U$ variables with random values and then holding one constant while updating the second and comparing the results to $A$. 
+
+Once the updates do not lead to further improvements, the process is stopped and the final matrix, $A'$ is compared to the existing values in $A$. 
+
+In the video much of the talk was dedicated to problems with problems with implementing this with
+spark. 
+
+This is very interesting but beyond the scope of this discussion. I was going to show my own pyspark implementation 
+using `pyspark` but it turns out the spark did not like my computer. Instead I'm using R's recomender lab. 
+
+This is a plug and play library that does it all for you. Full disclosure, the code below is coppied verbatim from [this](http://www.infofarm.be/articles/alternating-least-squares-algorithm-recommenderlab)
+website. I included it as an example. 
+
+
+```{r warning=F,message=F,error=F}
+library(recommenderlab)
+data(MovieLense)
+```
+
+
+```{r}
+scheme <- evaluationScheme(MovieLense, method="split", train=0.9, given=-5, goodRating=4)
+
+accuracy_table <- function(scheme, algorithm, parameter){
+  r <- Recommender(getData(scheme, "train"), algorithm, parameter = parameter)
+  p <- predict(r, getData(scheme, "known"), type="ratings")                      
+  acc_list <- calcPredictionAccuracy(p, getData(scheme, "unknown"))
+  total_list <- c(algorithm =algorithm, acc_list)
+  total_list <- total_list[sapply(total_list, function(x) !is.null(x))]
+  return(data.frame(as.list(total_list)))
+}
+
+table_random <- accuracy_table(scheme, algorithm = "RANDOM", parameter = NULL)
+table_ubcf <- accuracy_table(scheme, algorithm = "UBCF", parameter = list(nn=50))
+table_ibcf <- accuracy_table(scheme, algorithm = "IBCF", parameter = list(k=50))
+table_pop <- accuracy_table(scheme, algorithm = "POPULAR", parameter = NULL)
+table_ALS_1 <- accuracy_table(scheme, algorithm = "ALS", 
+                              parameter = list( normalize=NULL, lambda=0.1, n_factors=200, 
+                                                n_iterations=10, seed = 1234, verbose = TRUE))
+
+rbind(table_random, table_pop, table_ubcf, table_ibcf, table_ALS_1)
+
+```
+
+
+It is interesting to see that the most accurate method is infact ALS.
+
+Also, I am now going to spend the rest of my day trying to reinstall spark.
