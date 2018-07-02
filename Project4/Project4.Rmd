@@ -10,44 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
+# Loading Libraries:
 
-# Load data
 
 ```{r, warning=F, message=F}
 library(tidyverse)
 library(recommenderlab)
 ```
 
-```{r}
-df = read_csv(file = 'ratings_Video_Games.csv', col_names = c('userId', 'itemId', 'rating', 'time'))
-df = df %>% select(-time)
-df %>% head()
-```
-
-
-
-```{r setup, include=FALSE, warning=FALSE, message=FALSE}
-library(tidyverse)
-library(splitstackshape)
-library(recommenderlab)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-1 CommentCollapse 
+# Data
+We are just going to use regular data contained in the MovieLense set. 
 
 
 ```{r}
@@ -60,38 +32,116 @@ image(MovieLense, main = "Heatmap of the rating matrix")
 ```
 
 
+# Temp Predictions
+
+
+```{r}
+xval <- evaluationScheme(MovieLense, 
+                         method = "split", 
+                         train = 0.7, 
+                         given = 3,
+                         goodRating = 5)
+
+xval
+```
+
+
+```{r}
+
+```
+
+Convert ratingsMatrix to data.frame
+
+```{r}
+rm_svd <- Recommender(data = getData(xval, "train"), 
+                       method = "SVD")
+p1 <- predict(rm_svd, getData(xval, "train"), type = "ratingMatrix")
+p2 <- predict(rm_svd, getData(xval, "known"), type = "ratingMatrix")
+p3 <- predict(rm_svd, getData(xval, "unknown"), type = "ratingMatrix")
+```
+
+
+```{r}
+temp1 <- as(p1, 'data.frame')
+temp2 <-  as(p2, 'data.frame')
+temp3 <-  as(p3, 'data.frame')
+```
+
+
+```{r}
+tempDF <- rbind(temp1, temp2)
+dim(tempDF)
+```
+
+```{r}
+tempDF %>% head()
+tempDF <- tempDF %>% spread(key = item, value = rating)
+dim(tempDF)
+```
+
+
+```{r}
+svdDF <- as(p1, 'data.frame')
+svdDF %>% head()
+```
+
+```{r}
+svdDFWide <- svdDF %>% spread(key = item, value = rating)
+```
+
+```{r}
+narrowDF <- as(MovieLense, 'data.frame')
+narrowDF %>% head()
+wideDF <- spread(data = narrowDF, key = item, value = rating)
+wideDF[1:10, 1:10]
+```
+
+We need to get the userID and Movie Name for these ratings so that we can index them for our predictions.
+
+```{r}
+userID <- wideDF$user
+movieNames <- names(wideDF)[2:dim(wideDF)[2]]
+```
+
+
+
 ```{r}
 similarity_users <- similarity(MovieLense, method = "pearson", which = "users")
 
 ```
 
 ```{r}
- mat1 = as.matrix(similarity_users) 
-#   as_data_frame() %>% 
-#   gather('rows', 'columns', -2)
-# mat1 %>% head()
-
+mat1 = as.matrix(similarity_users) 
+mat2 = as_data_frame(mat1)
+names(mat2) = userID
+mat2$user <- userID
+mat2 %>% head()
 ```
+
 
 ```{r}
 library(reshape2)
-
-df <- melt(mat1, varnames = c("row", "col"))
-df %>% head()
+mat2 <- mat2 %>% 
+  melt('user' )
+mat2 %>% head()
 ```
+
+
 
 ```{r}
 simUser <- function(uid, df){
   top20 = df %>% 
-    filter(row == uid & value != 1) %>%  # Necessary to remove perfectly correlated. (Check if this is the case)
+    filter(user == uid & value != 1) %>%  # Necessary to remove perfectly correlated. (Check if this is the case)
     arrange(desc(value)) %>% 
     na.omit() %>% 
     head(20)
   return(top20)
 }
 
-simUser(2, df)
+simUser(1, mat2)
 ```
+
+This filters the relevant user and orders them by similarity.
 
 
 ```{r}
@@ -108,13 +158,6 @@ mean20 <- function(userList, df, minRating = 4){
 ```
 
 
-```{r}
-narrowDF <- as(MovieLense, 'data.frame')
-narrowDF %>% head()
-wideDF <- spread(data = narrowDF, key = item, value = rating)
-wideDF %>% head()
-```
-
 
 ```{r}
 numRatings <- function(mat){
@@ -124,6 +167,8 @@ numRatings <- function(mat){
   names(temp) <- c('itemId', 'count')
   return(temp)
 }
+numRatingsList <- numRatings(select(wideDF, -user))
+
 ```
 
 
@@ -148,57 +193,8 @@ serRecs <- function(rankList, mat, uId){
 
 
 ```{r}
-df %>% 
-  filter(row == 3 & value != 1) %>%  # Necessary to remove perfectly correlated. (Check if this is the case)
-  arrange(desc(value)) %>% 
-  na.omit() %>% 
-  head(20)
+aggrigator <- function(id){
+  
+}
 ```
-
-
-```{r}
-df <- read_csv(file = 'ratings_Video_Games.csv', 
-              col_names = c('userId', 'itemId', 'rating', 'time')) %>% 
-  mutate(userId = as.factor(userId), 
-         itemId = as.factor(itemId)) %>% 
-  mutate(userId = as.integer(userId),
-         itemId = as.integer(itemId),
-         rating = as.integer(rating)) %>% 
-  select(-time)
-#lapply(df, function(x) typeof(x))
-#min(df$rating)
-# need to create sparsematrix b/c of the file size 75.6 Mb
-s <- sparseMatrix(
-  as.numeric(df$userId), 
-  as.numeric(df$itemId),
-  dimnames = list(
-    as.character(levels(df$userId)), 
-    as.character(levels(df$itemId))),
-  x = df$rating)
-
-#convert to realRatingMatrix class
-my_rm <- new("realRatingMatrix",data=s)
-# typeof(my_rm@data@i)
-# my_rm@data@Dim
-
-```
-
-
-
-```{r}
-
-dfRating <- new("realRatingMatrix",data=df)
-```
-
-
-
-
-```{r}
-mM <- evaluationScheme(as(df, "realRatingMatrix"),
-                       method = "split", 
-                       train = 0.7, 
-                       given = 1,
-                       goodRating = 5)
-```
-
 

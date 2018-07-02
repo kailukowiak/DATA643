@@ -5,3 +5,7 @@
 Discussion2/rsconnect/
 .Rproj.user
 *.test
+ratings.csv
+tags.csv
+movies.csv
+links.csv
