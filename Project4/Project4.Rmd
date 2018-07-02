@@ -1,0 +1,204 @@
+---
+title: "Assignment 4"
+author: "Kai Lukowiak, Jann Bernberg"
+date: '2018-07-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+# Load data
+
+```{r, warning=F, message=F}
+library(tidyverse)
+library(recommenderlab)
+```
+
+```{r}
+df = read_csv(file = 'ratings_Video_Games.csv', col_names = c('userId', 'itemId', 'rating', 'time'))
+df = df %>% select(-time)
+df %>% head()
+```
+
+
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(splitstackshape)
+library(recommenderlab)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1 CommentCollapse 
+
+
+```{r}
+data(MovieLense)
+class(MovieLense)
+```
+
+```{r}
+image(MovieLense, main = "Heatmap of the rating matrix")
+```
+
+
+```{r}
+similarity_users <- similarity(MovieLense, method = "pearson", which = "users")
+
+```
+
+```{r}
+ mat1 = as.matrix(similarity_users) 
+#   as_data_frame() %>% 
+#   gather('rows', 'columns', -2)
+# mat1 %>% head()
+
+```
+
+```{r}
+library(reshape2)
+
+df <- melt(mat1, varnames = c("row", "col"))
+df %>% head()
+```
+
+```{r}
+simUser <- function(uid, df){
+  top20 = df %>% 
+    filter(row == uid & value != 1) %>%  # Necessary to remove perfectly correlated. (Check if this is the case)
+    arrange(desc(value)) %>% 
+    na.omit() %>% 
+    head(20)
+  return(top20)
+}
+
+simUser(2, df)
+```
+
+
+```{r}
+mean20 <- function(userList, df, minRating = 4){
+  top20 <- df[userList, ]
+  itemMeans <- colMeans(top20, na.rm = TRUE)
+  meanDF <- data_frame(names(itemMeans), itemMeans, )
+  colnames(meanDF) <- c('itemId', 'rating')
+  meanDF <- meanDF %>% 
+    filter(rating > minRating) %>% #
+    arrange(desc(rating)) # This must be
+  return(meanDF)
+}
+```
+
+
+```{r}
+narrowDF <- as(MovieLense, 'data.frame')
+narrowDF %>% head()
+wideDF <- spread(data = narrowDF, key = item, value = rating)
+wideDF %>% head()
+```
+
+
+```{r}
+numRatings <- function(mat){
+  # Takes a sparse matrix and counts non-na values.
+  temp <- sapply(mat, function(x) sum(is.na(x)))
+  temp <- data_frame(names(temp), temp)
+  names(temp) <- c('itemId', 'count')
+  return(temp)
+}
+```
+
+
+```{r}
+innerJoiner <- function(rankList, meanDF){
+  inner_join(rankList, meanDF, by = 'itemId' )
+  rankList <- rankList %>% 
+    arrange(desc(count)) %>% 
+    head(10)
+  return(rankList)
+}
+```
+
+
+```{r}
+serRecs <- function(rankList, mat, uId){
+  itemsToChange = recrankList$itemId
+  mat[uId, itemsToChange] = 5
+  return(mat)
+}
+```
+
+
+```{r}
+df %>% 
+  filter(row == 3 & value != 1) %>%  # Necessary to remove perfectly correlated. (Check if this is the case)
+  arrange(desc(value)) %>% 
+  na.omit() %>% 
+  head(20)
+```
+
+
+```{r}
+df <- read_csv(file = 'ratings_Video_Games.csv', 
+              col_names = c('userId', 'itemId', 'rating', 'time')) %>% 
+  mutate(userId = as.factor(userId), 
+         itemId = as.factor(itemId)) %>% 
+  mutate(userId = as.integer(userId),
+         itemId = as.integer(itemId),
+         rating = as.integer(rating)) %>% 
+  select(-time)
+#lapply(df, function(x) typeof(x))
+#min(df$rating)
+# need to create sparsematrix b/c of the file size 75.6 Mb
+s <- sparseMatrix(
+  as.numeric(df$userId), 
+  as.numeric(df$itemId),
+  dimnames = list(
+    as.character(levels(df$userId)), 
+    as.character(levels(df$itemId))),
+  x = df$rating)
+
+#convert to realRatingMatrix class
+my_rm <- new("realRatingMatrix",data=s)
+# typeof(my_rm@data@i)
+# my_rm@data@Dim
+
+```
+
+
+
+```{r}
+
+dfRating <- new("realRatingMatrix",data=df)
+```
+
+
+
+
+```{r}
+mM <- evaluationScheme(as(df, "realRatingMatrix"),
+                       method = "split", 
+                       train = 0.7, 
+                       given = 1,
+                       goodRating = 5)
+```
+
+

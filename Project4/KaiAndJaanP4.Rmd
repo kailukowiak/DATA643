@@ -1,0 +1,337 @@
+---
+title: "DATA643_P2"
+author: "Kai Lukowiak, Jann Bernberg"
+date: "June 12, 2018"
+output:
+  rmarkdown::html_document:
+    code_folding: hide
+---
+```
+library(tidyverse)
+library(splitstackshape)
+library(recommenderlab)
+```
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(splitstackshape)
+library(recommenderlab)
+```
+
+# Content-based and Collaborative Filtering:  
+
+This project extends and builds upon the previous submission that constructed a recommended system example with data from [MovieLens](https://movielens.org) linked from [grouplens.org](https://grouplens.org).  Although `MovieLens` is available within the `recommenderlab` package, I opted to manually prepare the data before moving to `recommenderlab` for analysis.  Many steps using `recommenderlab` follow along Chapter 3 of *Recommendation Systems in R* by S. Gorakala and M. Usuelli.
+
+## Data Exploration: 
+
+After reading in the data locally, I review the `head` of the `ratings` variable that contains the core of the data used for this assignment. 
+
+```{r}
+ratings <- read.csv("ratings.csv", header = T)
+links <- read.csv("links.csv", header = T, stringsAsFactors = F)
+movies <- read.csv("movies.csv", header = T, stringsAsFactors = F) %>% 
+  left_join(links, by = "movieId") %>% select(-tmdbId)
+# http://www.omdbapi.com/?i=tt3896198&apikey=8effeab3
+# object.size(ratings)
+head(ratings)
+```
+
+Next, I'll arrange the data by `userId` and review a histogram of the average user rating.  
+
+```{r}
+users <- ratings %>% select(userId, rating) %>% group_by(userId) %>% 
+  summarise(Qty_Rated = n(), 
+            Avg_rating = mean(rating),
+            Median_rating = median(rating)) %>% 
+  arrange(desc(Qty_Rated))
+
+users %>% 
+  ggplot(aes(x = Avg_rating))+ geom_histogram(bins = 40)+ 
+  ggtitle("Ratings: User-averages") + theme_classic()
+```
+
+As shown, 
+
+Next, I'll review the same histogram from the perspective of movies: 
+
+```{r}
+# I'll take out movies that are not rated. 
+items <- ratings %>% select(movieId, rating) %>% filter(rating > 0) %>% 
+  group_by(movieId) %>% 
+  summarise(Qty_Rated = n(), 
+            Avg_rating = mean(rating),
+            Median_rating = median(rating)) %>% 
+  arrange(desc(Qty_Rated))
+
+items %>% 
+  ggplot(aes(x = Avg_rating))+ geom_histogram(bins = 20) + 
+  ggtitle("Ratings: Movie-averages") +  theme_classic()
+```
+
+Next I'll complete a review of the `movie` data that contains 27K+ movie listings and get the counts by `genre`.  This requires that I binarize the data using the `cSplit` function: 
+
+```{r}
+# splitstack shape's cSplit to create multiple 
+# columns from a seperated string column
+g_movies <- movies %>% mutate("g" = genres) %>% select(-genres) %>% 
+  cSplit_e("g", sep = "|", type = "character", fill = 0, drop = F)
+
+g_movies %>% 
+  gather(-c(movieId, title, imdbId, g), 
+         key = "genre", 
+         value = "m_count") %>%
+  ggplot(aes(x = genre, y = m_count)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+As shown above, `g_Drama`, or movies that fall into (at least in part) the category of the Drama are most common among the movies followed by `g_Comedy`.
+
+## Test/Train split
+
+Using a baseline minimum of 2500 ratings, I'll narrow down the number of user-item pairs to reduce the size of the data I'm working with.  
+
+```{r}
+set.seed(1)
+# get list of users that have rated greater than 100 movies
+# and list of movies (items) have more than 100 ratings
+my_users <- users %>% filter(Qty_Rated > 2500)
+my_items <- items %>% filter(Qty_Rated > 2500)
+
+my_ratings <- ratings %>% 
+  filter(userId %in% my_users$userId,
+         movieId %in% my_items$movieId) %>% 
+  mutate(userId = as.factor(userId), 
+         movieId = as.factor(movieId)) %>% 
+  select(-timestamp)
+
+# s_size <- floor(0.75 * nrow(my_ratings))            # 25% for test set
+# train_index <- sample(seq_len(nrow(my_ratings)),
+#                       size = s_size)
+
+# xval contains the train and test data 70/30 split
+xval <- evaluationScheme(as(my_ratings, "realRatingMatrix"), 
+                         method = "split", 
+                         train = 0.7, 
+                         given = 3,
+                         goodRating = 5)
+
+xval
+# train <- my_ratings[train_index, ]
+# test <- my_ratings[-train_index, ]
+
+# CHECK irlba() and svd()
+# 117 rows 1766 cols
+```
+
+Then I'll convert my user/item/rating triplets from `train` using `recommenderlab`'s `realRatingMatrix`: 
+
+```{r, include=FALSE}
+# tr_rrm <- as(train, "realRatingMatrix")
+# te_rrm <- as(test, "realRatingMatrix")
+# tr_rrm
+```
+
+Even with my heavy filtering, I've still got a fairly large matrix at `117` by `1765` with 100K ratings. 
+
+```{r, include=FALSE, echo=FALSE}
+similarity_users <- similarity(getData(xval, "train")[1:5, ],
+                               method ="cosine",
+                               which = "users")
+as.matrix(similarity_users)
+```
+
+```{r, include=FALSE, echo=FALSE}
+# similarity_items <- similarity(my_rrm[, 1:5], 
+#                                method = "cosine", 
+#                                which = "items")
+# as.matrix(similarity_items)
+# recommender_models <- recommenderRegistry$get_entries(
+#   dataType = "realRatingMatrix")
+# lapply(recommender_models, "[[", "description")
+```
+
+Before proceeding, I'll review using the `image` function in `recommenderlab` - just a corner of the data as it's too large to show properly.  
+```{r}
+image(getData(xval, "train")[c(1:50),c(1:50)], 
+      main = "50x50 corner of the rating matrix")
+```
+
+## Building Recommendation Models
+
+The [documentation](recsys_ex.pdf) within the `recommenderlab` is very good and examples within were referenced to complete the assignment.  
+
+Further, `evaluationScheme` in the package allows for easy training/testing for more sophisticated comparisons. 
+
+***
+
+Below, I employ user-based and item-based collaborative filtering with 3 different methods.  
+
+### IBCF:
+
+I create the `Recommender` object using `method = "IBCF"`. 
+
+```{r}
+rm_ibcf <- Recommender(data = getData(xval, "train"), 
+                       method = "IBCF")
+rm_ibcf
+```
+
+### UBCF:
+
+```{r}
+rm_ubcf <- Recommender(data = getData(xval, "train"),
+                       method = "UBCF")
+rm_ubcf
+```
+
+### Popular:
+
+Another item-based filtering method...
+
+```{r}
+rm_popu <- Recommender(data = getData(xval, "train"),
+                       method = "POPULAR")
+rm_popu
+```
+
+## Evaluating Recommendation Models
+
+Below, I utilize the `known` portion of the evaluation data (i.e. the testing portion of the the combined training and testing data), to create prediction and evaluate the quality of the recommenders
+
+```{r}
+p1 <- predict(rm_ibcf, getData(xval, "known"), type = "ratings")
+p2 <- predict(rm_ubcf, getData(xval, "known"), type = "ratings")
+p3 <- predict(rm_popu, getData(xval, "known"), type = "ratings")
+
+err_eval <- rbind(
+  IBCF = calcPredictionAccuracy(p1, getData(xval, "unknown")),
+  UBCF = calcPredictionAccuracy(p2, getData(xval, "unknown")),
+  POPU = calcPredictionAccuracy(p3, getData(xval, "unknown")))
+err_eval
+```
+
+Above, I note that the `POPULAR` method of item-based collaborative filtering is the superior method given it's gote the lowest RSME score. 
+
+Next, I'll evaluate the `rm_popu` recommeder model via `cross` or cross-validation using the `evaluationScheme` function. 
+
+```{r}
+sch <- evaluationScheme(as(my_ratings, "realRatingMatrix"), 
+                        method = "cross",
+                        k = 4, # 4-fold cross validation scheme
+                        given = 3,
+                        goodRating=5)
+
+# Next we use the created evaluation scheme to 
+# evaluate the recommender method popular.
+# We evaluate top-1, top-3, top-5, top-10, 
+# top-15, and top-20 recommendation lists. 
+
+# this will tell us how long it takes our 
+# rec to serve up n recs:
+results <- evaluate(sch, 
+                    method = "POPULAR", 
+                    type = "topNList",
+                    n = c(1, 3, 5, 10, 15, 20))
+#dim(info_popu$ratings)
+#rm_1info$description
+#dim(info_ibcf$sim)
+results
+#image(info_popu$sim, main = "Heatmap of 50 rows and columns")
+```
+
+```{r}
+getConfusionMatrix(results)[[1]]
+```
+
+```{r}
+plot(results, "prec/rec", annotate=TRUE)
+```
+
+## Comparing Recommendation Models
+
+```{r}
+# below, I follow along with the text to review
+# how the models compare directly.
+set.seed(12)
+scheme <- evaluationScheme(as(my_ratings, "realRatingMatrix"), 
+                           method = "split", 
+                           train = .9,
+                           k = 1, 
+                           given = -5,      # all *but* 5   
+                           goodRating = 5)  # are randomly selected.
+scheme
+```
+
+create list of algorithms to try out... 
+
+```{r}
+algorithms <- list(
+  "Random items" = list(name="RANDOM", param=NULL),
+  "Popular items" = list(name="POPULAR", param=NULL),
+  "User-based CF" = list(name="UBCF", param=list(nn=50)),
+  "Item-based CF" = list(name="IBCF", param=list(k=50)),
+  "SVD approximation" = list(name="SVD", param=list(k = 50))
+  )
+
+results <- evaluate(scheme, 
+                    algorithms, 
+                    type = "topNList", 
+                    n=c(1, 3, 5, 10, 15, 20))
+
+```
+
+```{r}
+results
+```
+
+```{r}
+names(results)
+results[["user-based CF"]]
+```
+
+```{r}
+# True-Postive Rate (TPR) vs False-Postive Rate (FPR)
+#par(mfrow=c(1,2))
+plot(results, annotate=c(1,3), legend="topleft")
+```
+Above, I note that SVD approximation is superior to the other but the overall quality of the recommendations is poor. 
+
+```{r}
+plot(results, "prec/rec", annotate=3, legend="topleft")
+```
+
+But upon reviewing the above, it appears my precision and recall are very low.  These recommenders are not very good. 
+
+```{r}
+results <- evaluate(scheme, algorithms, type = "ratings")
+```
+
+## Conclusion: 
+
+Among the 3 reccomendation methods attempted, the superior results came from the item-based `POPULAR` method from the `recommenderlab` package.  I look forward to exploring additional features and attributes with this data. 
+
+```{r, include=FALSE, ehco=FALSE}
+# [OMDb API](http://www.omdbapi.com) for movie data. 
+qry_url <- function(imdb_id){
+  # imdb_id is of type int. 
+  q_id <- str_pad(as.character(imdb_id), 
+                  width=7, pad="0")
+  base_url <- "http://www.omdbapi.com/?i=tt%s%s"
+  my_omdbapi <- "&apikey=8effeab3"
+  q_url <- sprintf(base_url, URLencode(q_id), my_omdbapi)
+  return(q_url)
+}
+# test_movie <- 113228
+# api_response <- jsonlite::fromJSON(qry_url(test_movie),
+#                                    simplifyDataFrame = TRUE)
+# api_response$Runtime #  "101 min"
+# api_response$Genre   #  "Comedy, Romance"
+```
+
+References:
+
+* [SO: Training/Test Splits with `sample` function](https://stackoverflow.com/questions/17200114/how-to-split-data-into-training-testing-sets-using-sample-function)
+* [DF to matrix conversion on emilkirkegaard](https://emilkirkegaard.dk/en/?p=5412)
+* [SO: Separate to Uknown Number of Columns] (https://stackoverflow.com/questions/33288695/how-to-use-tidyrseparate-when-the-number-of-needed-variables-is-unknown)
+* [SO: Convert Pipe-delimited column into binary data](https://stackoverflow.com/questions/39461539/convert-column-with-pipe-delimited-data-into-dummy-variables)
+* [Alternating Least Squares](https://www.infofarm.be/articles/alternating-least-squares-algorithm-recommenderlab)

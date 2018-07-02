@@ -1,0 +1,116 @@
+---
+title: "Temp"
+author: "Kai Lukowiak, Jann Bernberg"
+date: '2018-07-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(recommenderlab)
+```
+
+```{r}
+df <- read_csv(file = 'ratings_Video_Games.csv', 
+              col_names = c('userId', 'itemId', 'rating', 'time')) %>% 
+  select(-time)
+#lapply(df, function(x) typeof(x))
+#min(df$rating)
+
+```
+```{r}
+items <- df %>% select(itemId, rating) %>% filter(rating > 0) %>% 
+  group_by(itemId) %>% 
+  summarise(Qty_Rated = n(), 
+            Avg_rating = mean(rating),
+            Median_rating = median(rating)) %>% 
+  arrange(desc(Qty_Rated)) %>% 
+  # narrow field filtering
+  filter(Qty_Rated>20)
+
+users <- df %>% select(userId, rating) %>% group_by(userId) %>% 
+  summarise(Qty_Rated = n(), 
+            Avg_rating = mean(rating),
+            Median_rating = median(rating)) %>% 
+  arrange(desc(Qty_Rated)) %>% 
+  # narrow field filtering
+  filter(Qty_Rated > 4)
+  
+# hist(users$Avg_rating)
+# hist(users$Median_rating)
+```
+
+```{r}
+users %>% 
+  ggplot(aes(x = Avg_rating))+ geom_histogram(bins = 5) + 
+  ggtitle("Users's Avg Rating Across Items") +  theme_classic()
+```
+
+```{r}
+items %>% 
+  ggplot(aes(x = Avg_rating))+ geom_histogram(bins = 15) + 
+  ggtitle("Item's Avg Rating Across Users") +  theme_classic()
+```
+
+
+```{r}
+# set.seed(5)
+# s_size <- floor(.25 * nrow(df)) 
+# my_sample <- sample(seq_len(nrow(df)), size = s_size)
+
+dim(df)
+my_ratings <- df %>% 
+  filter(itemId %in% items$itemId, 
+         userId  %in% users$userId) %>% 
+  mutate(userId = as.factor(userId),
+         itemId = as.factor(itemId))
+dim(my_ratings)
+```
+
+```{r}
+# need to create sparsematrix b/c of the file size 75.6 Mb
+s <- sparseMatrix(
+  as.numeric(my_ratings$userId), 
+  as.numeric(my_ratings$itemId),
+  dimnames = list(
+    as.character(levels(my_ratings$userId)), 
+    as.character(levels(my_ratings$itemId))),
+  x = my_ratings$rating)
+
+#convert to realRatingMatrix class
+my_rm <- new("realRatingMatrix", data = s)
+# typeof(my_rm@data@i)
+# my_rm@data@Dim
+my_rm
+# r_n1 <- normalize(my_rm)
+# image(r_n1[100:500,1000:2000], main="Centered")
+#r_n2 <- normalize(r, method="Z-score")
+#r
+```
+
+```{r}
+eval_create <- proc.time()
+mM <- evaluationScheme(my_rm,
+                       method = "split", 
+                       train = 0.7, 
+                       given = 1,
+                       goodRating = 5)
+eval_create <- proc.time() - eval_create
+eval_create
+```
+
+
+```{r}
+rm_pear <- Recommender(data =  getData(mM, 'train'), 
+                       method = "IBCF")
+```
+
+```{r}
+
+```
+
