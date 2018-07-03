@@ -289,6 +289,17 @@ tempJoin <- inner_join(predDF[1:1000, ], tempActual[1:1000, ], by = c('user', 'v
 tempJoin %>% head()
 ```
 
+```{r}
+library(data.table) # FAster 
+prdDF <- as.data.table(predDF)
+tempActual <- as.data.table(tempActual)
+names(tempActual)
+names(prdDF)[2] <- 'item'
+dtTest <- merge(prdDF, tempActual, by = c("user", "item"))
+dtTest
+```
+
+
 
 ```{r}
 rmseFinder <- function(predDF, actualTest) {
