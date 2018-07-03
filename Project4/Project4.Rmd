@@ -10,29 +10,53 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-# Loading Libraries:
+The goal of this assignment is give you practice working with accuracy and other recommender system metrics.
+In this assignment you’re asked to do at least one or (if you like) both of the following:
+
+- Work in a small group, and/or
+- Choose a different dataset to work with from your previous projects.
+
+# Deliverables
+
+1. As in your previous assignments, compare the accuracy of at least two recommender system algorithms against your offline data.
+2. Implement support for at least one business or user experience goal such as increased serendipity, novelty, or diversity.
+3. Compare and report on any change in accuracy before and after you’ve made the change in #2.
+4. As part of your textual conclusion, discuss one or more additional experiments that could be performed and/or metrics that could be evaluated only if online evaluation was possible. Also, briefly propose how you would design a reasonable online evaluation environment.
+
+# Overview
+
+Both authors, Jaan and Kai, have worked on Movielens data before, however, not as a group. Further, we have not used the builtin set, although it is very similar to our other sets.
+
+The main reason we chose to use this is because the dataset we plan on using for our final project was too large for `recommenderlab`. 
+
+# Deliverable 1
+
+**Compare accuracy of two recommender systems.**
+
+## Loading Libraries:
 
 
-```{r, warning=F, message=F}
+```{r, warning=F, message=F, error=F}
 library(tidyverse)
 library(recommenderlab)
 ```
 
-# Data
+## Data
+
 We are just going to use regular data contained in the MovieLense set. 
 
 
 ```{r}
 data(MovieLense)
-class(MovieLense)
 ```
 
 ```{r}
 image(MovieLense, main = "Heatmap of the rating matrix")
 ```
 
+Here we can see that it is very sparse.
 
-# Temp Predictions
+## Predictions
 
 
 ```{r}
@@ -45,9 +69,7 @@ xval <- evaluationScheme(MovieLense,
 xval
 ```
 
-
-
-Convert ratingsMatrix to data.frame
+Convert predictions `ratingsMatrix` to data.frame. This is necessary for some of the further work we are going to do when we try and introduce serendipitous results.
 
 ```{r}
 rm_svd <- Recommender(data = getData(xval, "train"), 
@@ -59,12 +81,52 @@ p3 <- predict(rm_svd, getData(xval, "unknown"), type = "ratingMatrix")
 
 
 ```{r}
+rm_ubcf <- Recommender(data = getData(xval, "train"),
+                       method = "UBCF")
+
+mod1 <- predict(rm_svd, getData(xval, "known"), type = "ratings")
+mod2 <- predict(rm_ubcf, getData(xval, "known"), type = "ratings")
+
+
+err_eval <- rbind(
+  SVD = calcPredictionAccuracy(mod1, getData(xval, "unknown")),
+  UBCF = calcPredictionAccuracy(mod2, getData(xval, "unknown")))
+err_eval
+```
+
+These two methods are very close in their error values. Further, an RMSE of $\approx 1.2$ isn't that bad considering that we didn't clean the dataset for extreamly sparse users etc. 
+
+# Deliverable 2
+
+**Implement support for at least one business or user experience goal such as increased serendipity, novelty, or diversity**
+
+As previous students have mentioned in our presentations, there can be more to a busines model than strait accuracy. 
+
+It can be delightful to find a movie on Netflix that is a bit outside of your regular style of movie but still surprises and excites. Generally, this involves taking some risks as to the rating. 
+
+We believe that users are naturally curious and do not always follow recommendations. They instead go to a general list of movies and pick one, not at random, but still one that the recommender might think would not appeal to them. This introduces natural experiments where a user decides if they like a film.
+
+Now, there are many methods to achieve this, and any answer for which one is better would have to be validated with A/B testing on various KPIs relevant to the business. (More on this later.)
+
+We believe that finding new movies that are less common than the ones recommended to users is a relevant business idea. To achieve this, we took the top 20 most similar users, based on Pearson Similarity, and took their highest rated movies. Because these users are similar, many movies rated 4-5 stars will be predicted 4-5 stars too. Instead, we take movies that are not common and recomend those. Some of these will not appeal to a certain user, but we think that novel, "hipster", movies could add business value. 
+
+Our algorithm was slightly complicated to implement in R but the functions below work by:
+
+1. Taking Pearson Similarity on all users
+1. Finding the top 20 similar users.
+1. Calculate the mean rating for all movies and filter it to only have 4-5 start reviews
+1. Innerjoin these onto a dataframe with the counts of ratings for all movies and sort in reverse.
+1. Select the top 10 highly rated (within the group of 20), but not often rated movies and reccomend them.
+
+
+
+```{r}
 temp1 <- as(p1, 'data.frame')
 temp2 <-  as(p2, 'data.frame')
 temp3 <-  as(p3, 'data.frame')
 ```
 
-
+Finally, the predictions for all results from the SVD algorithm are given below. 
 
 ```{r}
 svdPred <- rbind(temp1, temp2)
@@ -74,9 +136,6 @@ svdPred <- svdPred %>% spread(key = item, value = rating)
 dim(svdPred)
 ```
 
-
-
-I think we can delete this?
 
 
 ```{r}
@@ -188,8 +247,6 @@ serRecs <- function(rankList, mat, uId){
   mat[uId, itemsToChange] = 5
   return(mat)
 }
-
-
 ```
 
 
@@ -203,7 +260,7 @@ aggrigator <- function(uID, matToChange, wideDF, pearsonMatNarrow, rankList){
 }
 
 testMAt <- aggrigator(uID = 1, matToChange = svdPred, 
-                      wideDF = mat2,  pearsonMatNarrow = pearsonMatNarrow, rankList = numRatingsList)
+                      wideDF = wideDF,  pearsonMatNarrow = pearsonMatNarrow, rankList = numRatingsList)
 ```
 
 
@@ -212,7 +269,7 @@ svdPred1 <- svdPred
 for (i in wideDF$user) {
   svdPred1 <- aggrigator(uID = i, 
              matToChange = svdPred1,  
-             wideDF = mat2,  
+             wideDF = wideDF,  
              pearsonMatNarrow = pearsonMatNarrow, 
              rankList = numRatingsList)
 }
@@ -220,15 +277,49 @@ for (i in wideDF$user) {
 
 
 
-To Delete
+# Deliverable 3
+
+**Compare and report on any change in accuracy before and after you’ve made the change in #2.**
+
 ```{r}
-
-simUser(1, pearsonMatNarrow) # where 1 is uid
-
-test <- simUser(1, pearsonMatNarrow)
-mean20(userList = test$variable, wideDF)
-numRatingsList
-
-innerJoiner(numRatingsList, meanDF)
+predDF = svdPred1 %>% melt() %>% 
+  mutate(user = as.character(user))
+tempActual <- temp2 %>% mutate(user = as.character(user))
+tempJoin <- inner_join(predDF[1:1000, ], tempActual[1:1000, ], by = c('user', 'variable', 'item'), suffix = c('_pred', '_actual'))
+tempJoin %>% head()
 ```
+
+
+```{r}
+rmseFinder <- function(predDF, actualTest) {
+  predDF <- predDF %>% 
+    melt()
+
+  temp <- inner_join(predDF, actualTest, by = user, suffix = c('_pred', '_actual'))
+  return(temp)
+  
+}
+
+temp3 <- rmseFinder(svdPred1, temp2)
+temp3 %>% head()
+```
+
+
+```{r testingshit}
+svdPred1 %>% 
+  melt() %>% 
+  head()
+
+```
+
+
+
+# Deliverable 4
+
+As part of your textual conclusion, discuss one or more additional experiments that could be performed and/or metrics that could be evaluated only if online evaluation was possible. Also, briefly propose how you would design a reasonable online evaluation environment.
+
+
+Serendipitous recommendations will rarley increase accuracy. Instead, they offer a more interesting recommendation. We don't expect our model to work better. Infact, the way to validate models like this is to instead see their effect on the business's bottom line. For example, Netflix could use this algorithm to give serendipitous recommendations to x % of their users. If these users were more likely to cancel their subscription, then it would be a good recommendation, even if it decreased the RMSE.
+
+This is especially true because we are recommending movies that are not commonly seen. This means that it is unlikely that our sernedipitious recommendations are rated by the user, making cross validation difficult. In the real world, if we recommend a movie, a user will be much more likely to view/rate it, leading to real time validation. 
 
