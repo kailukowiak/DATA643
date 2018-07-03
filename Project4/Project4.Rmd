@@ -46,9 +46,6 @@ xval
 ```
 
 
-```{r}
-
-```
 
 Convert ratingsMatrix to data.frame
 
@@ -68,26 +65,19 @@ temp3 <-  as(p3, 'data.frame')
 ```
 
 
-```{r}
-tempDF <- rbind(temp1, temp2)
-dim(tempDF)
-```
 
 ```{r}
-tempDF %>% head()
-tempDF <- tempDF %>% spread(key = item, value = rating)
-dim(tempDF)
+svdPred <- rbind(temp1, temp2)
+dim(svdPred)
+svdPred %>% head()
+svdPred <- svdPred %>% spread(key = item, value = rating)
+dim(svdPred)
 ```
 
 
-```{r}
-svdDF <- as(p1, 'data.frame')
-svdDF %>% head()
-```
 
-```{r}
-svdDFWide <- svdDF %>% spread(key = item, value = rating)
-```
+I think we can delete this?
+
 
 ```{r}
 narrowDF <- as(MovieLense, 'data.frame')
@@ -111,19 +101,20 @@ similarity_users <- similarity(MovieLense, method = "pearson", which = "users")
 ```
 
 ```{r}
-mat1 = as.matrix(similarity_users) 
-mat2 = as_data_frame(mat1)
-names(mat2) = userID
-mat2$user <- userID
-mat2 %>% head()
+pearsonMat = as.matrix(similarity_users) %>% 
+  as_data_frame() 
+
+names(pearsonMat) = userID
+pearsonMat$user <- userID
+pearsonMat %>% head()
 ```
 
 
 ```{r}
 library(reshape2)
-mat2 <- mat2 %>% 
+pearsonMatNarrow <- pearsonMat %>% 
   melt('user' )
-mat2 %>% head()
+pearsonMatNarrow %>% head()
 ```
 
 
@@ -138,7 +129,7 @@ simUser <- function(uid, df){
   return(top20)
 }
 
-simUser(1, mat2)
+simUser(1, pearsonMatNarrow)
 ```
 
 This filters the relevant user and orders them by similarity.
@@ -146,16 +137,23 @@ This filters the relevant user and orders them by similarity.
 
 ```{r}
 mean20 <- function(userList, df, minRating = 4){
-  top20 <- df[userList, ]
-  itemMeans <- colMeans(top20, na.rm = TRUE)
-  meanDF <- data_frame(names(itemMeans), itemMeans, )
+  top20 <- df[userList, ] %>% select(-user)
+  top20Mat = as.matrix(as.data.frame(lapply(top20, as.numeric))) # R is weird.
+  
+  itemMeans <- colMeans(top20Mat, na.rm = TRUE)
+  meanDF <- data_frame(names(top20), itemMeans, )
   colnames(meanDF) <- c('itemId', 'rating')
   meanDF <- meanDF %>% 
     filter(rating > minRating) %>% #
     arrange(desc(rating)) # This must be
   return(meanDF)
 }
+
+test <- simUser(1, pearsonMatNarrow)
+meanDF <- mean20(userList = test$variable, wideDF)
 ```
+
+
 
 
 
@@ -180,21 +178,57 @@ innerJoiner <- function(rankList, meanDF){
     head(10)
   return(rankList)
 }
+innerJoiner(numRatingsList, meanDF)
 ```
 
 
 ```{r}
 serRecs <- function(rankList, mat, uId){
-  itemsToChange = recrankList$itemId
+  itemsToChange = rankList$itemId
   mat[uId, itemsToChange] = 5
   return(mat)
 }
+
+
 ```
 
 
 ```{r}
-aggrigator <- function(id){
-  
+aggrigator <- function(uID, matToChange, wideDF, pearsonMatNarrow, rankList){
+  simUserIDS <- simUser(uID, pearsonMatNarrow)
+  avg20 <- mean20(uID, wideDF)
+  topN <- innerJoiner(rankList,avg20)
+  ret <- serRecs(topN, matToChange, uID)
+  return(ret)
 }
+
+testMAt <- aggrigator(uID = 1, matToChange = svdPred, 
+                      wideDF = mat2,  pearsonMatNarrow = pearsonMatNarrow, rankList = numRatingsList)
+```
+
+
+```{r}
+svdPred1 <- svdPred
+for (i in wideDF$user) {
+  svdPred1 <- aggrigator(uID = i, 
+             matToChange = svdPred1,  
+             wideDF = mat2,  
+             pearsonMatNarrow = pearsonMatNarrow, 
+             rankList = numRatingsList)
+}
+```
+
+
+
+To Delete
+```{r}
+
+simUser(1, pearsonMatNarrow) # where 1 is uid
+
+test <- simUser(1, pearsonMatNarrow)
+mean20(userList = test$variable, wideDF)
+numRatingsList
+
+innerJoiner(numRatingsList, meanDF)
 ```
 
