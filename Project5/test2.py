@@ -1,5 +1,7 @@
 import findspark
 findspark.init()
 
-import pyspark
-sc = pyspark.SparkContext(appName="myAppName")
+from pyspark import SparkContext
+sc = SparkContext("local", "First App")
+
+sc.stop()

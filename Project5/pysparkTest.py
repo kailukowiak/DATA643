@@ -11,22 +11,18 @@ from pyspark import SparkContext, SparkConf
 
 from pyspark.sql import SQLContext
 
-sc = SparkContext
-#sqlContext = SQLContext(sc)
 
 
-# ratings = pd.read_csv('ml-latest-small/ratings.csv')
+sc = SparkContext('local','project5')
+sql_sc = SQLContext(sc)
 
-ratings = sc.textFile('ml-latest-small/ratings.csv')
+pandas_df = pd.read_csv('Project2/ml-latest-small/ratings.csv')  
 
-
-# .toDF(["user",
-#                                                            "item",
-#                                                            "rating",
-#                                                            "timestamp"])
-
-
-X_train, X_test = ratings.randomSplit([0.6, 0.4])
+s_df = sql_sc.createDataFrame(pandas_df)
 
 
 
+X_train, X_test = s_df.randomSplit([0.6, 0.4])
+
+
+#sc.stop()
